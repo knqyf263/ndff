@@ -1,0 +1,5 @@
+# Config file for ndff startup
+
+# Options passed to the ndff program
+# Example: export JSON data from traffic on eth0 to localhost on port 24224
+OPTIONS="-i eth0 -s 127.0.0.1 -p 24224 -t ndff.flow -m json"
