@@ -1,0 +1,67 @@
+#!/bin/bash
+#
+# ndff - nDPI for fluentd
+#
+# chkconfig: 2345 95 05
+# description: Starts and stops the ndff 
+
+# Source function library.
+. /etc/init.d/functions
+
+NDFF_CONF=/etc/sysconfig/ndff
+NDFF_LOCK=/var/lock/subsys/ndff
+NDFF_PROG=/usr/bin/ndff
+OPTIONS="-i eth0"
+
+# Source config
+if [ -f $NDFF_CONF ]; then
+    . $NDFF_CONF
+fi
+
+[ -x $NDFF_PROG ] || exit 0
+
+RETVAL=0
+
+start() {
+    echo -n $"Starting ndff: "
+    daemon $NDFF_PROG $OPTIONS -d
+    RETVAL=$?
+    echo
+    [ $RETVAL -eq 0 ] && touch $NDFF_LOCK
+    return $RETVAL
+}
+stop() {
+    echo -n $"Shutting down ndff: "
+    killproc $NDFF_PROG
+    RETVAL=$?
+    echo
+    [ $RETVAL -eq 0 ] && rm -f $NDFF_LOCK
+    return $RETVAL
+}
+restart() {
+    stop
+    start
+}
+
+case "$1" in
+    start)
+    start
+    ;;
+    stop)
+    stop
+    ;;
+    status)
+    status $NDFF_PROG
+    ;;
+    restart|reload)
+    restart
+    ;;
+    condrestart)
+    [ -f $NDFF_LOCK ] && restart || :
+    ;;
+    *)
+    echo $"Usage: $0 {start|stop|status|restart|condrestart}"
+    exit 1
+esac
+
+exit $?
